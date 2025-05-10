@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
@@ -40,12 +40,12 @@ function App() {
               {appTitle}
             </div>
             <nav className="hidden md:flex ml-8 space-x-4">
-              <a href="/" className={`py-1 px-2 font-medium text-surface-600 dark:text-surface-300 hover:text-primary dark:hover:text-primary-light ${location.pathname === '/' ? 'text-primary dark:text-primary-light' : ''}`}>
+              <Link to="/" className={`py-1 px-2 font-medium text-surface-600 dark:text-surface-300 hover:text-primary dark:hover:text-primary-light ${location.pathname === '/' ? 'text-primary dark:text-primary-light' : ''}`}>
                 Home
-              </a>
-              <a href="/history" className={`py-1 px-2 font-medium text-surface-600 dark:text-surface-300 hover:text-primary dark:hover:text-primary-light ${location.pathname === '/history' ? 'text-primary dark:text-primary-light' : ''}`}>
+              </Link>
+              <Link to="/history" className={`py-1 px-2 font-medium text-surface-600 dark:text-surface-300 hover:text-primary dark:hover:text-primary-light ${location.pathname === '/history' ? 'text-primary dark:text-primary-light' : ''}`}>
                 History
-              </a>
+              </Link>
             </nav>
           </div>
           
