@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
+import History from './pages/History';
 import NotFound from './pages/NotFound';
 import getIcon from './utils/iconUtils';
 
@@ -38,6 +39,14 @@ function App() {
             <div className="text-primary dark:text-primary-light font-bold text-xl md:text-2xl tracking-tight">
               {appTitle}
             </div>
+            <nav className="hidden md:flex ml-8 space-x-4">
+              <a href="/" className={`py-1 px-2 font-medium text-surface-600 dark:text-surface-300 hover:text-primary dark:hover:text-primary-light ${location.pathname === '/' ? 'text-primary dark:text-primary-light' : ''}`}>
+                Home
+              </a>
+              <a href="/history" className={`py-1 px-2 font-medium text-surface-600 dark:text-surface-300 hover:text-primary dark:hover:text-primary-light ${location.pathname === '/history' ? 'text-primary dark:text-primary-light' : ''}`}>
+                History
+              </a>
+            </nav>
           </div>
           
           <button
@@ -61,6 +70,7 @@ function App() {
       <main className={`container mx-auto px-4 py-8 ${!isHomePage ? 'max-w-6xl' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/history" element={<History />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
@@ -96,6 +106,11 @@ const MoonIcon = () => {
 
 const SunIcon = () => {
   const Icon = getIcon("Sun");
+  return <Icon size={20} />;
+};
+
+const HistoryIcon = () => {
+  const Icon = getIcon("History");
   return <Icon size={20} />;
 };
 
