@@ -79,9 +79,9 @@ const MainFeature = () => {
     toast.success(`${newFiles.length} files added to upload queue`);
   };
 
-  const removeFile = (id) => {
+  const removeQueuedFile = (id) => {
     setFiles(files.filter(file => file.id !== id));
-    toast.info("File removed from queue");
+    toast.info("File removed from upload queue");
   };
 
   const getFileIcon = (fileType) => {
@@ -308,7 +308,7 @@ const MainFeature = () => {
                       
                       {!uploading && file.status !== 'uploading' && (
                         <button
-                          type="button"
+                          onClick={() => removeQueuedFile(file.id)}
                           onClick={() => removeFile(file.id)}
                           className="p-1.5 text-surface-500 hover:text-red-500 dark:text-surface-400 dark:hover:text-red-400 rounded-full hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors"
                           aria-label="Remove file"
