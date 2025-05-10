@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useFileFolderContext } from '../context/FileFolderContext';
+import FolderNavigation from './FolderNavigation';
 import getIcon from '../utils/iconUtils';
 
 const MainFeature = () => {
@@ -12,8 +14,18 @@ const MainFeature = () => {
   const FilePlusIcon = getIcon("FilePlus");
   const AlertCircleIcon = getIcon("AlertCircle");
   const CheckCircleIcon = getIcon("CheckCircle");
+  const FolderOpenIcon = getIcon("FolderOpen");
   const TrashIcon = getIcon("Trash");
   
+  const ShareIcon = getIcon("Share2");
+  
+  // Use file/folder context
+  const { 
+    currentFolderId, 
+    addFiles, 
+    files: contextFiles, 
+    removeFile,
+  } = useFileFolderContext();
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -59,7 +71,11 @@ const MainFeature = () => {
       uploaded: false
     }));
     
-    setFiles(prev => [...prev, ...updatedFiles]);
+    
+    // Also add to context once "uploaded"
+    if (!uploading) {
+      toast.success(`${newFiles.length} files added to upload queue`);
+    }
     toast.success(`${newFiles.length} files added to upload queue`);
   };
 
@@ -118,6 +134,7 @@ const MainFeature = () => {
               progress: newProgress,
               status: 'complete',
               uploaded: true
+              
             };
           }
           
@@ -136,6 +153,11 @@ const MainFeature = () => {
       if (updatedFiles.every(file => file.progress === 100)) {
         clearInterval(interval);
         setUploading(false);
+        
+        // Add successfully uploaded files to context
+        const completedFiles = updatedFiles.filter(file => file.status === 'complete');
+        addFiles(completedFiles);
+        
         toast.success("All files uploaded successfully", {
           icon: <span className="text-green-500"><CheckCircleIcon size={20} /></span>
         });
@@ -144,9 +166,12 @@ const MainFeature = () => {
   };
   
   return (
-    <div className="rounded-2xl bg-white dark:bg-surface-800 shadow-card overflow-hidden">
+    <div>
+      <FolderNavigation />
+      
+      <div className="rounded-2xl bg-white dark:bg-surface-800 shadow-card overflow-hidden">
       <div className="p-6 md:p-8">
-        <h2 className="text-xl md:text-2xl font-semibold mb-4 text-surface-900 dark:text-white">
+        <h2 className="text-xl md:text-2xl font-semibold mb-4 text-surface-900 dark:text-white flex items-center gap-2">
           File Uploader
         </h2>
         
@@ -298,6 +323,91 @@ const MainFeature = () => {
             </div>
           </div>
         )}
+      
+      {/* Files in current folder */}
+      {contextFiles.length > 0 && (
+        <div className="mt-6 rounded-2xl bg-white dark:bg-surface-800 shadow-card overflow-hidden">
+          <div className="p-6 md:p-8">
+            <h2 className="text-xl font-semibold mb-4 text-surface-900 dark:text-white flex items-center gap-2">
+              <FolderOpenIcon size={22} />
+              <span>Files in current folder</span>
+            </h2>
+            
+            <div className="overflow-hidden">
+              <div className="border border-surface-200 dark:border-surface-700 rounded-lg overflow-hidden">
+                <div className="w-full min-w-full divide-y divide-surface-200 dark:divide-surface-700">
+                  <div className="bg-surface-100 dark:bg-surface-800">
+                    <div className="grid grid-cols-12 gap-2 px-4 py-3 text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider">
+                      <div className="col-span-6">Name</div>
+                      <div className="col-span-2">Size</div>
+                      <div className="col-span-2">Status</div>
+                      <div className="col-span-2 text-right">Actions</div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-surface-800 divide-y divide-surface-200 dark:divide-surface-700">
+                    <AnimatePresence>
+                      {contextFiles
+                        .filter(file => file.folderId === currentFolderId)
+                        .map(file => (
+                        <motion.div 
+                          key={file.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="grid grid-cols-12 gap-2 px-4 py-3 text-sm text-surface-900 dark:text-surface-100"
+                        >
+                          <div className="col-span-6 flex items-center space-x-3">
+                            <div className={`
+                              p-2 rounded-lg flex-shrink-0
+                              bg-surface-200 dark:bg-surface-600 text-surface-600 dark:text-surface-300
+                            `}>
+                              {getFileIcon(file.type)}
+                            </div>
+                            <div className="truncate">
+                              <p className="font-medium">{file.name}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="col-span-2 flex items-center">
+                            {formatFileSize(file.size)}
+                          </div>
+                          
+                          <div className="col-span-2 flex items-center">
+                            {file.shared ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 dark:bg-primary/20 text-primary rounded text-xs">
+                                <ShareIcon size={12} />
+                                <span>Shared</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded text-xs">
+                                <CheckCircleIcon size={12} />
+                                <span>Uploaded</span>
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="col-span-2 flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => removeFile(file.id)}
+                              className="p-1.5 text-surface-500 hover:text-red-500 dark:text-surface-400 dark:hover:text-red-400 rounded-full hover:bg-surface-200 dark:hover:bg-surface-600 transition-colors"
+                              aria-label="Delete file"
+                            >
+                              <TrashIcon size={16} />
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
       </div>
     </div>
   );

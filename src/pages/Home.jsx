@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import MainFeature from '../components/MainFeature';
+import FolderGrid from '../components/FolderGrid';
 import getIcon from '../utils/iconUtils';
+import { FileFolderProvider } from '../context/FileFolderContext';
 import { motion } from 'framer-motion';
 
 const Home = () => {
@@ -31,7 +33,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="space-y-12">
+    <FileFolderProvider>
       <section className="text-center max-w-4xl mx-auto space-y-4">
         <motion.h1 
           className="text-3xl md:text-5xl font-bold text-surface-900 dark:text-white tracking-tight"
@@ -51,8 +53,13 @@ const Home = () => {
         </motion.p>
       </section>
 
-      <MainFeature />
-
+      <div className="my-12">
+        <MainFeature />
+      </div>
+      
+      <div className="my-8">
+        <FolderGrid />
+      </div>
       <section className="py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {features.map((feature) => (
@@ -72,7 +79,7 @@ const Home = () => {
             </motion.div>
           ))}
         </div>
-      </section>
+    </FileFolderProvider>
     </div>
   );
 };

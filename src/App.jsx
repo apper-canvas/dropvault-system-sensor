@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
@@ -24,6 +24,11 @@ function App() {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+  
+  // Check if we're on the home page
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  const appTitle = "DropVault";
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900 text-surface-900 dark:text-surface-50 transition-colors duration-200">
@@ -31,7 +36,7 @@ function App() {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="text-primary dark:text-primary-light font-bold text-xl md:text-2xl tracking-tight">
-              DropVault
+              {appTitle}
             </div>
           </div>
           
@@ -53,7 +58,7 @@ function App() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className={`container mx-auto px-4 py-8 ${!isHomePage ? 'max-w-6xl' : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="*" element={<NotFound />} />
